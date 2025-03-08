@@ -31,15 +31,6 @@ export default function JobsSection() {
     router.push(`/resume?job_id=${job.id}`);
   };
 
-  if (isLoading)
-    return <div className="text-center py-8">Loading job listings...</div>;
-  if (error)
-    return (
-      <div className="text-center py-8 text-red-500">
-        Error loading jobs. Please try again.
-      </div>
-    );
-
   return (
     <section className="relative overflow-hidden py-24 bg-gradient-to-b from-slate-100 to-white dark:from-slate-800 dark:to-slate-900">
       {/* Abstract background elements */}
