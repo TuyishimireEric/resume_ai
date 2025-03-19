@@ -17,8 +17,8 @@ export async function uploadFile(formData: FormData): Promise<UploadResponse> {
   }
 
   try {
-    // const result = await uploadToCloudinary(file);
-    const result = await uploadToGoogleDrive(file);
+    const result = await uploadToCloudinary(file);
+    // const result = await uploadToGoogleDrive(file);
 
     console.log("Upload result:", result);
 

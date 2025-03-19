@@ -242,16 +242,14 @@ export function ResumeUploader() {
   };
 
   const handleApplyForJob = async () => {
-    // if (!file || !job || !reviewData) {
-    //   toast({
-    //     title: "Cannot apply",
-    //     description: "Missing resume or job information",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
-
-    if (!file) return;
+    if (!file || !job || !reviewData) {
+      toast({
+        title: "Cannot apply",
+        description: "Missing resume or job information",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
