@@ -3,10 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { AuthUser } from "@/types/user";
 import { HttpStatusCode } from "axios";
-import {
-  addNewApplication,
-  getApplications,
-} from "@/database/queries";
+import { addNewApplication, getApplications } from "@/database/queries";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -23,7 +20,7 @@ export async function GET(req: NextRequest) {
       cookieName,
     })) as AuthUser | null;
 
-    if (!user?.id || user.role !== "admin") {
+    if (!user?.id || user.role !== "recruiter") {
       return NextResponse.json(
         {
           status: "Error",
@@ -33,6 +30,9 @@ export async function GET(req: NextRequest) {
         { status: HttpStatusCode.Unauthorized }
       );
     }
+    const { searchParams } = new URL(req.url);
+    const jobId = searchParams.get("jobId") || "";
+
     const allJobs = await getApplications();
 
     return NextResponse.json(allJobs, { status: 200 });

@@ -1,9 +1,10 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Bell, Zap, AlertCircle } from "lucide-react";
+import { Eye, Bell, Zap, AlertCircle, Download } from "lucide-react";
 import { ApplicationI } from "@/types/applications";
 import { Job } from "@/types";
+import * as XLSX from 'xlsx';
 
 interface JobApplicantsViewProps {
   job: Job | null;
@@ -30,6 +31,31 @@ export function JobApplicantsView({
       parseFloat(a.match_score) > parseFloat(b.match_score) ? -1 : 1
     )
     .slice(0, Number(job?.required_staff) || 20);
+
+  // Function to export applicants to Excel
+  const exportToExcel = () => {
+    if (!applicants.length) return;
+    
+    // Prepare data for export
+    const exportData = applicants.map(applicant => ({
+      'Name': applicant.user_name,
+      'Email': applicant.user_email,
+      'Match Score': applicant.match_score,
+      'Status': Number(applicant.match_score) > 50 ? 'Shortlisted' : 'Not Shortlisted',
+      'Applied Date': applicant.created_at
+    }));
+    
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
+    
+    // Generate Excel file and trigger download
+    const fileName = `${jobTitle.replace(/\s+/g, '_')}_Applicants_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
 
   if (isLoading) {
     return (
@@ -108,8 +134,12 @@ export function JobApplicantsView({
             </p>
           </div>
           <div className="flex gap-2">
-            <Button className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40">
-              <Zap className="mr-2 h-4 w-4" /> Export List
+            <Button 
+              className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40"
+              onClick={exportToExcel}
+              disabled={applicants.length === 0}
+            >
+              <Download className="mr-2 h-4 w-4" /> Export List
             </Button>
           </div>
         </div>
@@ -145,9 +175,6 @@ export function JobApplicantsView({
                       Applicant
                     </th>
                     <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-6 py-4">
-                      Match Score
-                    </th>
-                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-6 py-4">
                       Status
                     </th>
                     <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-6 py-4">
@@ -181,13 +208,10 @@ export function JobApplicantsView({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                          {applicant.match_score}
+                          {Number(applicant.match_score) > 50
+                            ? "Shortlisted"
+                            : "Not Shortlisted"}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
-                          {applicant.status}
-                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                         {applicant.created_at}

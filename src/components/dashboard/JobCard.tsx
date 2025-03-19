@@ -43,14 +43,7 @@ export const JobCard = ({ job, onJobClick, isAdmin }: JobCardProps) => {
 
         {/* Job stats: Applicants, required staff, and deadline in one row */}
         <div className="flex flex-wrap items-center gap-3 mb-5">
-          <div className="flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-900/40 rounded-lg border border-blue-100 dark:border-blue-800">
-            <div className="mr-2 bg-blue-100 dark:bg-blue-800/50 rounded-full p-1">
-              <Users className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-              {job.applicants || 0} Applicants
-            </span>
-          </div>
+          
 
           {job.required_staff && (
             <div className="flex items-center px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/40">

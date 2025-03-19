@@ -1,12 +1,17 @@
 import { db } from "@/database/db";
 import { ApplicationI } from "@/types/applications";
 import { applications } from "../schema";
+import { eq } from 'drizzle-orm';
 
 export const getApplications = async () => {
   try {
-    return await db.select().from(applications).execute();
+    return await db
+      .select()
+      .from(applications)
+      // .where(eq(applications.job_id, jobId))
+      .execute();
   } catch (error) {
-    console.error("Error getting jobs:", error);
+    console.error("Error getting applications:", error);
     throw error;
   }
 };

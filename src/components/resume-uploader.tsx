@@ -53,13 +53,9 @@ export function ResumeUploader() {
     }
   }, [jobIdParam, jobs]);
 
-  // Set job description and extract requirements from fetched job data
   useEffect(() => {
     if (job) {
       setIsJobMode(true);
-      // Extract requirements from job description
-      // This is a simple extraction logic - you might want to improve this
-      // based on your actual job description format
       const descriptionText = job.description || "";
     }
   }, [job, isJobLoading, jobIdParam, toast]);
@@ -375,7 +371,7 @@ export function ResumeUploader() {
   ];
 
   // Determine if user can apply based on score
-  const canApply = isJobMode && reviewData && reviewData?.overallScore >= 5;
+  const canApply = isJobMode && reviewData;
 
   const formatDescription = (description: string) => {
     const lines = description.split("\n");

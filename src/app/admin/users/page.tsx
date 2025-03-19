@@ -11,14 +11,15 @@ import {
   Moon,
   User,
   LogOut,
+  User2Icon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DashboardView } from "@/components/dashboard/DashboardView";
-import { JobPostsView } from "@/components/dashboard/JobPostView";
 import "animate.css";
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { UserListView } from "@/components/dashboard/UserList";
+import { useUsers } from "@/app/hooks/user/useUsers";
 
 const Page: React.FC = () => {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -26,20 +27,7 @@ const Page: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
 
-  // Initialize theme based on user preference or system preference
-  useEffect(() => {
-    // Check if user has a saved preference
-    const savedTheme = localStorage.getItem("hr-admin-theme");
-    if (savedTheme) {
-      setDarkMode(savedTheme === "dark");
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setDarkMode(prefersDark);
-    }
-  }, []);
+const {data: userData, isPending} = useUsers(); 
 
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
@@ -55,14 +43,16 @@ const Page: React.FC = () => {
 
   const navigationItems = [
     {
-      name: "Dashboard",
-      view: "dashboard",
-      icon: <Home className="h-5 w-5" />,
+      name: "users",
+      view: "users",
+      icon: <User2Icon className="h-5 w-5" />,
+      access: "admin",
     },
     {
       name: "Job Posts",
       view: "jobPosts",
       icon: <Briefcase className="h-5 w-5" />,
+      access: "recruiter",
     },
     // { name: "Users", view: "users", icon: <Users className="h-5 w-5" /> },
   ];
@@ -107,22 +97,29 @@ const Page: React.FC = () => {
         </div>
         <nav className="flex-1 p-4">
           <ul className="space-y-1">
-            {navigationItems.map((item) => (
-              <li key={item.view}>
-                <button
-                  onClick={() => setCurrentView(item.view)}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all",
-                    currentView === item.view
-                      ? "dark:bg-gradient-to-r dark:from-indigo-500/20 dark:to-violet-500/20 dark:text-indigo-300 dark:border dark:border-indigo-500/30 bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-700 border border-indigo-200"
-                      : "dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  )}
-                >
-                  {item.icon}
-                  {item.name}
-                </button>
-              </li>
-            ))}
+            {navigationItems
+              .filter((item) =>
+                item.access == session?.user?.role
+              )
+              .map((item) => (
+                <li key={item.view}>
+                  <button
+                    onClick={() => {
+                      setCurrentView(item.view);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all",
+                      currentView === item.view
+                        ? "dark:bg-gradient-to-r dark:from-indigo-500/20 dark:to-violet-500/20 dark:text-indigo-300 dark:border dark:border-indigo-500/30 bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-700 border border-indigo-200"
+                        : "dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    )}
+                  >
+                    {item.icon}
+                    {item.name}
+                  </button>
+                </li>
+              ))}
           </ul>
         </nav>
         <div
@@ -253,25 +250,28 @@ const Page: React.FC = () => {
           >
             <nav className="p-4">
               <ul className="space-y-1">
-                {navigationItems.map((item) => (
-                  <li key={item.view}>
-                    <button
-                      onClick={() => {
-                        setCurrentView(item.view);
-                        setMobileMenuOpen(false);
-                      }}
-                      className={cn(
-                        "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all",
-                        currentView === item.view
-                          ? "dark:bg-gradient-to-r dark:from-indigo-500/20 dark:to-violet-500/20 dark:text-indigo-300 dark:border dark:border-indigo-500/30 bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-700 border border-indigo-200"
-                          : "dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                      )}
-                    >
-                      {item.icon}
-                      {item.name}
-                    </button>
-                  </li>
-                ))}
+                {navigationItems.map((item) => {
+                  // Check if user has access to this navigation item
+                  if (item.access?.includes(session?.user?.role ?? "")) {
+                    return (
+                      <li key={item.view}>
+                        <button
+                          onClick={() => setCurrentView(item.view)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-all",
+                            currentView === item.view
+                              ? "dark:bg-gradient-to-r dark:from-indigo-500/20 dark:to-violet-500/20 dark:text-indigo-300 dark:border dark:border-indigo-500/30 bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-700 border border-indigo-200"
+                              : "dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          )}
+                        >
+                          {item.icon}
+                          {item.name}
+                        </button>
+                      </li>
+                    );
+                  }
+                  return null; // Don't render if user doesn't have access
+                })}
               </ul>
             </nav>
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t dark:border-white/10 border-slate-200">
@@ -318,8 +318,7 @@ const Page: React.FC = () => {
           "animate__animated animate__fadeIn"
         )}
       >
-        {currentView === "dashboard" && <DashboardView />}
-        {currentView === "jobPosts" && <JobPostsView />}
+        <UserListView  users={userData} isLoading={isPending} />
       </main>
     </div>
   );

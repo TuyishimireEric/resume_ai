@@ -66,3 +66,40 @@ export const updateUserPassword = async (
     return false;
   }
 };
+
+export const getUserList = async () => {
+  try {
+    return await db.query.users.findMany({
+      columns: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error getting users:", error);
+    throw error;
+  }
+};
+
+export const updateUserRole = async (
+  userId: string,
+  newRole: string
+): Promise<boolean> => {
+  try {
+    await db
+      .update(users)
+      .set({ role: newRole })
+      .where(eq(users.id, userId))
+      .execute();
+
+    return true;
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return false;
+  }
+};

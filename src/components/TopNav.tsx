@@ -59,10 +59,18 @@ export default function TopNav() {
                 <>
                 {session?.user?.role === "admin" && (
                   <Link
-                    href={"/admin"}
-                    className="px-8 py-1 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105"
+                    href={"/admin/users"}
+                    className="px-8 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105"
                   >
                     Admin
+                  </Link>
+                )}
+                {session?.user?.role === "recruiter" && (
+                  <Link
+                    href={"/admin/jobs"}
+                    className="px-8 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105"
+                  >
+                    Dashboard
                   </Link>
                 )}
                   {/* User Info */}

@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       cookieName,
     })) as AuthUser | null;
 
-    if (!user?.id || user.role !== "admin") {
+    if (!user?.id || user.role !== "recruiter") {
       return NextResponse.json(
         {
           status: "Error",

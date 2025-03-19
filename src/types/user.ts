@@ -11,5 +11,15 @@ export interface UserI {
 
 export interface AuthUser {
   id: string;
-  role: "admin" | "teacher" | "student";
+  role: "admin" | "recruiter" | "user";
+}
+
+export interface UserDataI {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: string;
+  created_at: string;
+  updated_at: string;
 }
