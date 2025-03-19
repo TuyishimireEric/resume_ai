@@ -25,6 +25,8 @@ import { useSearchParams } from "next/navigation";
 import { useJobs } from "@/app/hooks/jobs/useJobs";
 import { Job } from "@/types";
 import { useCreateApplication } from "@/app/hooks/jobs/useCreateApplication";
+import { uploadFile } from "@/app/hooks/actions";
+import { uploadToGoogleDrive } from "@/lib/uploadToGoogleDrive";
 
 export function ResumeUploader() {
   const { toast } = useToast();
@@ -240,32 +242,42 @@ export function ResumeUploader() {
   };
 
   const handleApplyForJob = async () => {
-    if (!file || !job || !reviewData) {
-      toast({
-        title: "Cannot apply",
-        description: "Missing resume or job information",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (!file || !job || !reviewData) {
+    //   toast({
+    //     title: "Cannot apply",
+    //     description: "Missing resume or job information",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
-    console.log("Applying for job:", job, reviewData);
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setIsUploading(true);
 
     try {
-      await createApplicationMutation.mutateAsync({
-        user_name: reviewData.name,
-        user_email: reviewData.email,
-        job_id: job.id,
-        status: "pending",
-        match_score: (reviewData.overallScore * 10).toString(),
-        resume_url: "",
-      });
+      const resumeUrl = await uploadFile(formData);
+      // const result = await uploadToGoogleDrive(file);
+      console.log("result", resumeUrl)
+
+      // await createApplicationMutation.mutateAsync({
+      //   user_name: reviewData.name,
+      //   user_email: reviewData.email,
+      //   job_id: job.id,
+      //   status: "pending",
+      //   match_score: (reviewData.overallScore * 10).toString(),
+      //   resume_url: resumeUrl.file?.secure_url || "",
+      // });
 
       toast({
         title: "Success",
         description: "Application submitted successfully",
         variant: "default",
       });
+      setIsUploading(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -273,6 +285,7 @@ export function ResumeUploader() {
         variant: "destructive",
       });
       console.error("Error creating job:", error);
+      setIsUploading(false);
     }
   };
 
@@ -598,7 +611,7 @@ export function ResumeUploader() {
                       disabled={createApplicationMutation.isPending}
                       className="w-full bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white border-0 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 dark:shadow-green-500/20 dark:hover:shadow-green-500/30"
                     >
-                      {createApplicationMutation.isPending ? (
+                      {createApplicationMutation.isPending || isUploading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
                           Submitting...
@@ -611,6 +624,25 @@ export function ResumeUploader() {
                     </Button>
                   </div>
                 )}
+
+                <div className="mt-4">
+                  <Button
+                    onClick={handleApplyForJob}
+                    disabled={createApplicationMutation.isPending}
+                    className="w-full  hover:bg-green-600 dark:bg-red-600 dark:hover:bg-green-700 text-white border-0 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 dark:shadow-green-500/20 dark:hover:shadow-green-500/30"
+                  >
+                    {createApplicationMutation.isPending || isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" /> Apply Now
+                      </>
+                    )}
+                  </Button>
+                </div>
 
                 <div className="mt-4 flex items-center justify-center text-slate-500 dark:text-slate-400 text-xs">
                   <Shield className="h-3 w-3 mr-1" />
