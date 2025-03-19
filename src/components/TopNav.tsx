@@ -32,7 +32,7 @@ export default function TopNav() {
                 href={"/"}
                 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400"
               >
-                ResumeAI
+                Simba Super Market
               </Link>
             </div>
 
