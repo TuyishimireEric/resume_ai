@@ -51,9 +51,9 @@ export default function JobsSection() {
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-slate-800 dark:text-white tracking-tight">
             <span className="inline-block">
-              Find Your{" "}
+              CV Screening{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400">
-                Perfect Role
+                & Job matching system
               </span>
             </span>
           </h2>
