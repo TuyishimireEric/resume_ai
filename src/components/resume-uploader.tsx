@@ -27,11 +27,14 @@ import { Job } from "@/types";
 import { useCreateApplication } from "@/app/hooks/jobs/useCreateApplication";
 import { uploadFile } from "@/app/hooks/actions";
 import { uploadToGoogleDrive } from "@/lib/uploadToGoogleDrive";
+import { useSession } from "next-auth/react";
 
 export function ResumeUploader() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const jobIdParam = searchParams.get("job_id");
+
+  const { data: session } = useSession();
 
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<string>("");
@@ -259,7 +262,7 @@ export function ResumeUploader() {
     try {
       const resumeUrl = await uploadFile(formData);
       // const result = await uploadToGoogleDrive(file);
-      console.log("result", resumeUrl)
+      console.log("result", resumeUrl);
 
       // await createApplicationMutation.mutateAsync({
       //   user_name: reviewData.name,
@@ -383,6 +386,8 @@ export function ResumeUploader() {
 
   // Determine if user can apply based on score
   const canApply = isJobMode && reviewData;
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "recruiter";
 
   const formatDescription = (description: string) => {
     const lines = description.split("\n");
@@ -602,7 +607,7 @@ export function ResumeUploader() {
                   </Button>
                 </div>
 
-                {isJobMode && reviewData && canApply && (
+                {isJobMode && reviewData && canApply && !isAdmin && (
                   <div className="mt-4">
                     <Button
                       onClick={handleApplyForJob}
@@ -622,25 +627,6 @@ export function ResumeUploader() {
                     </Button>
                   </div>
                 )}
-
-                <div className="mt-4">
-                  <Button
-                    onClick={handleApplyForJob}
-                    disabled={createApplicationMutation.isPending}
-                    className="w-full  hover:bg-green-600 dark:bg-red-600 dark:hover:bg-green-700 text-white border-0 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 dark:shadow-green-500/20 dark:hover:shadow-green-500/30"
-                  >
-                    {createApplicationMutation.isPending || isUploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" /> Apply Now
-                      </>
-                    )}
-                  </Button>
-                </div>
 
                 <div className="mt-4 flex items-center justify-center text-slate-500 dark:text-slate-400 text-xs">
                   <Shield className="h-3 w-3 mr-1" />
