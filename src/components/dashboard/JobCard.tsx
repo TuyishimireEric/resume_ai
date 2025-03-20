@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/types";
+import { useSession } from "next-auth/react";
 
 interface JobCardProps {
   job: Job;
@@ -21,6 +22,9 @@ interface JobCardProps {
 }
 
 export const JobCard = ({ job, onJobClick, isAdmin }: JobCardProps) => {
+  const { data: session } = useSession();
+  const admin =
+    session?.user?.role === "admin" || session?.user?.role === "recruiter";
   return (
     <Card
       key={job.id}
@@ -29,7 +33,7 @@ export const JobCard = ({ job, onJobClick, isAdmin }: JobCardProps) => {
       {/* Decorative accent bar at top */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
 
-      <div className="p-6">
+      <div className="p-6" onClick={() => onJobClick(job)}>
         {/* Header section with title and location */}
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
@@ -43,8 +47,6 @@ export const JobCard = ({ job, onJobClick, isAdmin }: JobCardProps) => {
 
         {/* Job stats: Applicants, required staff, and deadline in one row */}
         <div className="flex flex-wrap items-center gap-3 mb-5">
-          
-
           {job.required_staff && (
             <div className="flex items-center px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/40">
               <div className="mr-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-full p-1">
@@ -115,16 +117,17 @@ export const JobCard = ({ job, onJobClick, isAdmin }: JobCardProps) => {
         </div>
 
         {/* Action buttons */}
-        <div className="grid grid-cols-1 gap-3">
-          <Button
-            onClick={() => onJobClick(job)}
-            className="bg-blue-300 hover:bg-blue-400 dark:bg-gray-800 dark:hover:bg-gray-700/80 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700 font-medium rounded-lg"
-            variant="outline"
-          >
-            <Eye className="h-4 w-4 mr-2" />{" "}
-            {isAdmin ? "View Applied" : "Apply Now!"}
-          </Button>
-        </div>
+        {!admin && (
+          <div className="grid grid-cols-1 gap-3">
+            <Button
+              onClick={() => onJobClick(job)}
+              className="bg-blue-300 hover:bg-blue-400 dark:bg-gray-800 dark:hover:bg-gray-700/80 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700 font-medium rounded-lg"
+              variant="outline"
+            >
+              <Eye className="h-4 w-4 mr-2" /> Apply Now!
+            </Button>
+          </div>
+        )}
       </div>
     </Card>
   );
