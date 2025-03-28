@@ -1,10 +1,11 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Bell, Zap, AlertCircle, Download } from "lucide-react";
+import { Eye, Bell, Zap, AlertCircle, Download, DownloadIcon } from "lucide-react";
 import { ApplicationI } from "@/types/applications";
 import { Job } from "@/types";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
+import { formatDate } from "@/lib/functions";
 
 interface JobApplicantsViewProps {
   job: Job | null;
@@ -32,29 +33,62 @@ export function JobApplicantsView({
     )
     .slice(0, Number(job?.required_staff) || 20);
 
-  // Function to export applicants to Excel
   const exportToExcel = () => {
     if (!applicants.length) return;
-    
+
     // Prepare data for export
-    const exportData = applicants.map(applicant => ({
-      'Name': applicant.user_name,
-      'Email': applicant.user_email,
-      'Match Score': applicant.match_score,
-      'Status': Number(applicant.match_score) > 50 ? 'Shortlisted' : 'Not Shortlisted',
-      'Applied Date': applicant.created_at
+    const exportData = applicants.map((applicant) => ({
+      Name: applicant.user_name,
+      Email: applicant.user_email,
+      "Match Score": applicant.match_score,
+      Status:
+        Number(applicant.match_score) > 50 ? "Shortlisted" : "Not Shortlisted",
+      "Applied Date": applicant.created_at,
     }));
-    
+
     // Create worksheet
     const worksheet = XLSX.utils.json_to_sheet(exportData);
-    
+
     // Create workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
-    
+
     // Generate Excel file and trigger download
-    const fileName = `${jobTitle.replace(/\s+/g, '_')}_Applicants_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `${jobTitle.replace(/\s+/g, "_")}_Applicants_${
+      new Date().toISOString().split("T")[0]
+    }.xlsx`;
     XLSX.writeFile(workbook, fileName);
+  };
+
+  const getPDFFromBuffer = (base64Buffer: string, fileName: string) => {
+    const buffer = Buffer.from(base64Buffer, "base64");
+
+    const blob = new Blob([buffer], { type: "application/pdf" });
+
+    const pdfUrl = URL.createObjectURL(blob);
+
+    return {
+      pdfUrl,
+      fileName,
+    };
+  };
+
+  const openPDF = (base64Buffer: string, fileName: string) => {
+    const { pdfUrl } = getPDFFromBuffer(base64Buffer, fileName);
+    window.open(pdfUrl, "_blank");
+  };
+
+  const DownloadPDF = (base64Buffer: string, fileName: string) => {
+    const { pdfUrl } = getPDFFromBuffer(base64Buffer, fileName);
+    const link = document.createElement("a");
+    link.href = pdfUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.download = fileName;
+
+    link.click();
+
+    URL.revokeObjectURL(pdfUrl);
   };
 
   if (isLoading) {
@@ -134,7 +168,7 @@ export function JobApplicantsView({
             </p>
           </div>
           <div className="flex gap-2">
-            <Button 
+            <Button
               className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white border-0 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40"
               onClick={exportToExcel}
               disabled={applicants.length === 0}
@@ -175,6 +209,9 @@ export function JobApplicantsView({
                       Applicant
                     </th>
                     <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-6 py-4">
+                      Match Score
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-6 py-4">
                       Status
                     </th>
                     <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-6 py-4">
@@ -206,6 +243,9 @@ export function JobApplicantsView({
                           </div>
                         </div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                        {applicant.match_score}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                           {Number(applicant.match_score) > 50
@@ -214,15 +254,33 @@ export function JobApplicantsView({
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                        {applicant.created_at}
+                        {formatDate(applicant.created_at ?? "")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex space-x-2">
                           <Button
                             size="sm"
+                            onClick={() =>
+                              openPDF(
+                                applicant.resume_url ?? "",
+                                applicant.user_name + " Resume.pdf"
+                              )
+                            }
                             className="bg-white hover:bg-slate-50 text-indigo-600 border border-indigo-200 hover:border-indigo-300 dark:bg-indigo-500/20 dark:hover:bg-indigo-500/30 dark:text-indigo-300 dark:border-indigo-500/30"
                           >
                             <Eye className="h-4 w-4 mr-1" /> Resume
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              DownloadPDF(
+                                applicant.resume_url ?? "",
+                                applicant.user_name + " Resume.pdf"
+                              )
+                            }
+                            className="bg-white hover:bg-slate-50 text-indigo-600 border border-indigo-200 hover:border-indigo-300 dark:bg-indigo-500/20 dark:hover:bg-indigo-500/30 dark:text-indigo-300 dark:border-indigo-500/30"
+                          >
+                            <DownloadIcon className="h-4 w-4 mr-1" /> Download
                           </Button>
                         </div>
                       </td>

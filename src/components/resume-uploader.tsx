@@ -253,32 +253,32 @@ export function ResumeUploader() {
       });
       return;
     }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
+  
     setIsUploading(true);
-
+  
     try {
-      const resumeUrl = await uploadFile(formData);
-      // const result = await uploadToGoogleDrive(file);
-      console.log("result", resumeUrl);
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-      // await createApplicationMutation.mutateAsync({
-      //   user_name: reviewData.name,
-      //   user_email: reviewData.email,
-      //   job_id: job.id,
-      //   status: "pending",
-      //   match_score: (reviewData.overallScore * 10).toString(),
-      //   resume_url: resumeUrl.file?.secure_url || "",
-      // });
-
+      const base64Buffer = buffer.toString('base64');
+  
+      const result = await createApplicationMutation.mutateAsync({
+        user_name: reviewData.name,
+        user_email: reviewData.email,
+        job_id: job.id,
+        status: "pending",
+        match_score: (reviewData.overallScore * 10).toString(),
+        resume_url: base64Buffer,
+      });
+  
       toast({
         title: "Success",
         description: "Application submitted successfully",
         variant: "default",
       });
+  
       setIsUploading(false);
+      return result;
     } catch (error) {
       toast({
         title: "Error",
@@ -287,6 +287,7 @@ export function ResumeUploader() {
       });
       console.error("Error creating job:", error);
       setIsUploading(false);
+      throw error;
     }
   };
 
@@ -300,7 +301,6 @@ export function ResumeUploader() {
       return;
     }
 
-    // Reset any previous errors
     setError(null);
 
     try {

@@ -86,7 +86,7 @@ export default function JobsSection() {
         </div>
 
         {/* Featured Jobs Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 max-w-4xl mx-auto">
           <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
             Featured Opportunities
           </h3>
