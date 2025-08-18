@@ -64,7 +64,7 @@ const Page: React.FC = () => {
       name: "Job Posts",
       view: "jobPosts",
       icon: <Briefcase className="h-5 w-5" />,
-      access: "recruiter",
+      access: "admin",
     },
     // { name: "Users", view: "users", icon: <Users className="h-5 w-5" /> },
   ];

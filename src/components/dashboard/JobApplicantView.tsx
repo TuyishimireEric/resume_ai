@@ -24,7 +24,7 @@ export function JobApplicantsView({
 }: JobApplicantsViewProps) {
   const jobTitle = job?.title || "Job";
   const filtered = job
-    ? applications.filter((app) => app.job_id === job.id)
+    ? applications?.filter((app) => app.job_id === job.id)
     : [];
 
   const applicants = filtered
@@ -61,9 +61,16 @@ export function JobApplicantsView({
   };
 
   const getPDFFromBuffer = (base64Buffer: string, fileName: string) => {
-    const buffer = Buffer.from(base64Buffer, "base64");
+    // Decode base64 to binary string
+    const binaryString = atob(base64Buffer);
+    // Convert binary string to Uint8Array
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
 
-    const blob = new Blob([buffer], { type: "application/pdf" });
+    const blob = new Blob([bytes], { type: "application/pdf" });
 
     const pdfUrl = URL.createObjectURL(blob);
 
