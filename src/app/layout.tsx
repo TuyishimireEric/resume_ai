@@ -4,7 +4,8 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Provider } from "./_providers/Provider";
-import 'animate.css';
+import "animate.css";
+import ResumeAIChatbot from "@/components/chat/ResumeAi";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             {children}
             <Toaster />
+            <ResumeAIChatbot />
           </ThemeProvider>
         </Provider>
       </body>
