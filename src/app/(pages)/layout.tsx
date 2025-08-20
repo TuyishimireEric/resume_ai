@@ -2,7 +2,7 @@ import TopNav from "@/components/TopNav";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Simba Super Market",
+  title: "Resume Ai",
   description: "Resume Ai",
 };
 
